@@ -3,7 +3,7 @@ var mongoose = require('mongoose'),
  
 var deliverySchema = new Schema({
     _id: { type: mongoose.Schema.Types.ObjectId},
-    match_id: { type: String, ref : 'Match' },
+    match_id: { type: Number, ref : 'Match' },
     inning : {type : Number},
     batting_team : {type : String},
     bowling_team : {type : String},
@@ -28,14 +28,4 @@ var deliverySchema = new Schema({
 
 const Delivery = mongoose.model('delivery', deliverySchema)
 
-function findByMatchId(id) {
-    return Delivery.find({ match_id : id })
-        .then((result) => {
-            result = JSON.stringify(result);
-            delete result._id;
-            delete result.__v;
-            return result;
-        });
-};
-
-module.exports = { Delivery : Delivery, findByMatchId : findByMatchId };
+module.exports = Delivery;

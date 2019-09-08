@@ -1,6 +1,8 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
+mongoose.set('debug', true);
+
  var matchSchema = new Schema({
     id: { type: Number  },
     season : {type : Number},
@@ -24,17 +26,4 @@ var mongoose = require('mongoose'),
 
 const Match = mongoose.model('match', matchSchema)
 
-const list = () => {
-    return new Promise((resolve, reject) => {
-        Match.find().select("-_id")
-            .exec(function (err, matches) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(matches);
-                }
-            })
-    });
-};
-
-module.exports = { Match : Match, matchList : list };
+module.exports = Match;
