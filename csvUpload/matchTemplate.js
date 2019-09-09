@@ -1,4 +1,4 @@
-var json2csv = require('json2csv');
+const { parse } = require('json2csv');
 
 exports.get = function (req, res) {
 
@@ -23,7 +23,7 @@ exports.get = function (req, res) {
         'umpire3'
     ];
 
-    var csv = json2csv({ data: '', fields: fields });
+    const csv = parse({}, {fields});
 
     res.set("Content-Disposition", "attachment;filename=matches.csv");
     res.set("Content-Type", "application/octet-stream");
