@@ -20,6 +20,11 @@ Mongodb
 Node
 ```
 
+Also upload csv using the following url
+```
+http://localhost:8001/
+```
+
 ## Authors
 
 * **Amalanathan**
