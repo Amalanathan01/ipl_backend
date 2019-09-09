@@ -2,12 +2,11 @@ var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
  
 var deliverySchema = new Schema({
-    id : {type : Number},
-    //match_id : {type : ForeignKey},
+    _id: { type: mongoose.Schema.Types.ObjectId},
+    match_id: { type: Number, ref : 'Match' },
     inning : {type : Number},
     batting_team : {type : String},
     bowling_team : {type : String},
-    date : {type : Date},
     over : {type : Number},
     ball : {type : Number},
     batsman : {type : String},
@@ -28,4 +27,5 @@ var deliverySchema = new Schema({
 });
 
 const Delivery = mongoose.model('delivery', deliverySchema)
+
 module.exports = Delivery;

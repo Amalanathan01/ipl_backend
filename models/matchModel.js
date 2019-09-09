@@ -1,8 +1,10 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
+mongoose.set('debug', true);
+
  var matchSchema = new Schema({
-    number : {type : Number},
+    id: { type: Number  },
     season : {type : Number},
     city : {type : String},
     date : {type : Date},
@@ -23,4 +25,5 @@ var mongoose = require('mongoose'),
 });
 
 const Match = mongoose.model('match', matchSchema)
+
 module.exports = Match;

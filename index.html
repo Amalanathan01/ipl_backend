@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Upload Match</title>
+</head>
+<body>
+    <p>
+        Use the form below to upload a list of matches.
+        Click <a href="/matchtemplate">here</a> for an example template.
+    </p>
+    <form action="/match" method="POST" encType="multipart/form-data">
+        <input type="file" name="file" accept="*.csv" /><br /><br />
+        <input type="submit" value="Upload Match" />
+    </form>
+    <p>
+        Use the form below to upload a list of deliveries.
+        Click <a href="/deliverytemplate">here</a> for an example template.
+    </p>
+    <form action="/deliveries" method="POST" encType="multipart/form-data">
+        <input type="file" name="file" accept="*.csv" /><br /><br />
+        <input type="submit" value="Upload Delivery" />
+    </form>
+</body>
+</html>

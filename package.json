@@ -4,15 +4,49 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npm run server",
+    "server": "nodemon --exec babel-node index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@ionic/app-scripts": "^3.2.4",
     "body-parser": "^1.19.0",
-    "express": "^4.16.3",
-    "gulp": "^3.9.1",
+    "concurrently": "^4.1.2",
+    "cors": "^2.8.5",
+    "csvtojson": "^2.0.10",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.1.5",
+    "express-graphql": "^0.9.0",
+    "fast-csv": "^3.4.0",
+    "graphql": "^14.5.4",
+    "graphql-playground-middleware-express": "^1.7.12",
+    "graphql-tools": "^4.0.5",
+    "graphql-yoga": "^1.18.3",
+    "gulp": "^4.0.2",
     "gulp-nodemon": "^2.4.2",
-    "mongoose": "^5.6.11"
+    "http": "0.0.0",
+    "json2csv": "^4.5.2",
+    "jsonwebtoken": "^8.5.1",
+    "merge-graphql-schemas": "^1.7.0",
+    "moment": "^2.24.0",
+    "moment-timezone": "^0.5.26",
+    "mongoose": "^5.6.11",
+    "node-uuid": "^1.4.8",
+    "nodemon": "^1.19.2",
+    "swagger-ui-express": "^4.0.7",
+    "sync-request": "^6.1.0"
+  },
+  "devDependencies": {
+    "@babel/node": "^7.5.5",
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0",
+    "@babel/plugin-transform-runtime": "^7.1.0",
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/runtime": "^7.1.2",
+    "@babel/preset-react": "^7.0.0"
   }
 }
