@@ -78,20 +78,29 @@ const RootQuery = new GraphQLObjectType({
         deliveries: {
             type: new GraphQLList(DeliveryType),
             args: { matchid: { type: new GraphQLNonNull(GraphQLInt) } },
-            resolve(parent, args) {
+            resolve(parent, args, context) {
+                if (!context.isTokenAuthorized) {
+                    throw new Error("Unauthorized");
+                }
                 return Delivery.find({ match_id :args.matchid });
             }
         },
         match:{
             type: new GraphQLList(MatchType),
             args: { matchid : { type: new GraphQLNonNull(GraphQLInt) } },
-            resolve(parent, args) {
+            resolve(parent, args, context) {
+                if (!context.isTokenAuthorized) {
+                    throw new Error("Unauthorized");
+                }
                 return Match.find({ id :args.matchid });
             }
         },
         matches:{
             type: new GraphQLList(MatchType),
-            resolve(parent, args) {
+            resolve(parent, args, context) {
+                if (!context.isTokenAuthorized) {
+                    throw new Error("Unauthorized");
+                }
                 return Match.find({});
             }
         }
@@ -123,7 +132,10 @@ const Mutation = new GraphQLObjectType({
                 umpire2: { type: GraphQLString },
                 umpire3: { type: GraphQLString }
             },
-            resolve(parent, args) {
+            resolve(parent, args, context) {
+                if (!context.isTokenAuthorized) {
+                    throw new Error("Unauthorized");
+                }
                 let match = new Match({
                     id: args.id === '' ? null : parseInt(args.id),
                     season: args.season,
@@ -172,7 +184,10 @@ const Mutation = new GraphQLObjectType({
                 dismissal_kind: { type: GraphQLString },
                 fielder: { type: GraphQLString }
             },
-            resolve(parent,args){
+            resolve(parent, args, context) {
+                if (!context.isTokenAuthorized) {
+                    throw new Error("Unauthorized");
+                }
                 let delivery = new Delivery({
                     match_id: args.match_id === '' ? null : parseInt(args.match_id),
                     inning: args.inning === '' ? null : parseInt(args.inning),
