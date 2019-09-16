@@ -1,6 +1,7 @@
 var csv = require('fast-csv');
 var mongoose = require('mongoose');
 var Match = require('../models/matchModel');
+var Team = require('../models/teamModel')
 
 exports.post = function (req, res) {
     if (!req.files)
@@ -9,6 +10,7 @@ exports.post = function (req, res) {
     var matchFile = req.files.file;
 
     var matches = [];
+    var teams = [];
 
     csv
         .parseString(matchFile.data.toString(), {
@@ -38,7 +40,18 @@ exports.post = function (req, res) {
             });
         })
         .on("end", function () {
+            const team = new Set();
+            matches.forEach(item => team.add(item.team1));
+            matches.forEach(item => team.add(item.team2));
+            console.log(team);
+            team.forEach(item => teams.push({
+                _id: new mongoose.Types.ObjectId(),
+                teamName: item
+            }));
             Match.collection.insertMany(matches, function (err, documents) {
+                if (err) throw err;
+            });
+            Team.collection.insertMany(teams, function (err, documents) {
                 if (err) throw err;
             });
             console.log("Sucessfully Uploaded");

@@ -29,6 +29,7 @@
     "graphql-yoga": "^1.18.3",
     "gulp": "^4.0.2",
     "gulp-nodemon": "^2.4.2",
+    "hashmap": "^2.3.0",
     "http": "0.0.0",
     "json2csv": "^4.5.2",
     "jsonwebtoken": "^8.5.1",
