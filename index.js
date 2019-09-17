@@ -1,6 +1,5 @@
 ﻿require("dotenv").config();
 var app = require('express')();
-var uploadapp = require('express')();
 var fileUpload = require('express-fileupload');
 var mongoose = require('mongoose');
 var server = require('http').Server(app);
@@ -16,10 +15,6 @@ const {
 } = require('apollo-server-express');
 
 const {
-    authMiddleware
-} = require('./lib/middleware');
-
-const {
     login,
     signup,
     getTokenData,
@@ -31,39 +26,33 @@ const {
     host
 } = require('./config').server;
 
+app.use(cors());
+
 app.use('/playground', playground({
     endpoint: '/graphql'
 }));
 
-uploadapp.use(fileUpload());
+app.use(fileUpload());
 
-uploadapp.use(bodyParser.json());
+app.use(bodyParser.json());
 
-const buildOptions = async (req, res) => {    
-    const tokenData = req.headers ? getTokenData(req.headers.authorization) : null;
-    const isTokenAuthorized = await isAuthorized(tokenData);
-    if (!isTokenAuthorized) {
-        throw new Error("Unauthorized or token is expired");
-    }
+const buildOptions = async (req, res) => {
+    const tokenData = req.headers.authorization ? getTokenData(req.headers.authorization) : null;
+    const isTokenAuthorized = tokenData ? await isAuthorized(tokenData) : null;
     return {
         schema,
         context: { isTokenAuthorized }
     }
 }
 
-app.use(bearerToken());
-app.use(authMiddleware);
-
 app.use('/graphql', graphqlHTTP(buildOptions));
 
-uploadapp.post('/login', login);
-uploadapp.post('/signup', signup);
+app.post('/login', login);
+app.post('/signup', signup);
 
-uploadapp.get('/', function (req, res) {
+app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
-
-uploadapp.listen("8002");
 
 server.listen(port);
 
@@ -72,19 +61,19 @@ mongoose.connect(config.url)
     .catch(err => console.log(err));
 
 var matchTemplate = require('./csvUpload/matchTemplate.js');
-uploadapp.get('/matchtemplate', matchTemplate.get);
+app.get('/matchtemplate', matchTemplate.get);
 
 var deliveryTemplate = require('./csvUpload/deliveryTemplate.js');
-uploadapp.get('/deliverytemplate', deliveryTemplate.get);
+app.get('/deliverytemplate', deliveryTemplate.get);
 
 var userTemplate = require('./csvUpload/userTemplate.js');
-uploadapp.get('/usertemplate', userTemplate.get);
+app.get('/usertemplate', userTemplate.get);
 
 var matchUpload = require('./csvUpload/matchUpload.js');
-uploadapp.post('/match', matchUpload.post);
+app.post('/match', matchUpload.post);
 
 var deliveriesUpload = require('./csvUpload/deliveriesUpload.js');
-uploadapp.post('/deliveries', deliveriesUpload.post);
+app.post('/deliveries', deliveriesUpload.post);
 
 var usersUpload = require('./csvUpload/userUpload');
-uploadapp.post('/users', usersUpload.post);
+app.post('/users', usersUpload.post);
