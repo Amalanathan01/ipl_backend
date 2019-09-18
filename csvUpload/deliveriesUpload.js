@@ -1,6 +1,8 @@
 var csv = require('fast-csv');
 var mongoose = require('mongoose');
 var Delivery = require('../models/deliveryModel');
+var Player = require('../models/playerModel');
+var HashMap = require('hashmap');
 
 exports.post = function (req, res) {
     if (!req.files)
@@ -9,6 +11,7 @@ exports.post = function (req, res) {
     var deliveriesFile = req.files.file;
 
     var deliveries = [];
+    var players = [];
 
     csv
         .parseString(deliveriesFile.data.toString(), {
@@ -43,8 +46,24 @@ exports.post = function (req, res) {
             console.log("In progress");
         })
         .on("end", function () {
+            const player = new HashMap();
+            deliveries.forEach(item => player.set(item.batsman, item.batting_team));
+            deliveries.forEach(item => player.set(item.non_striker, item.batting_team));
+            deliveries.forEach(item => player.set(item.bowler, item.bowling_team));
+            deliveries.forEach(item => item.batsman[item.batsman.length - 1] === '(' ? player.set(item.fielder, item.bowling_team) : null);
+            player.forEach(function (value, key) {
+                players.push({
+                    _id: new mongoose.Types.ObjectId(),
+                    teamName: value,
+                    playerName: key
+                })
+            });
             Delivery.collection.insertMany(deliveries, function (err, documents) {
-               console.log("In progress");
+               console.log("Deliveries insert in progress");
+                if (err) throw err;
+            });
+            Player.collection.insertMany(players, function (err, documents) {
+                console.log("Players insert in progress");
                 if (err) throw err;
             });
             console.log("Successfully uploaded");

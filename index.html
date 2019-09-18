@@ -20,5 +20,13 @@
         <input type="file" name="file" accept="*.csv" /><br /><br />
         <input type="submit" value="Upload Delivery" />
     </form>
+    <p>
+        Use the form below to upload a list of users.
+        Click <a href="/usertemplate">here</a> for an example template.
+    </p>
+    <form action="/users" method="POST" encType="multipart/form-data">
+        <input type="file" name="file" accept="*.csv" /><br /><br />
+        <input type="submit" value="Upload Users" />
+    </form>
 </body>
 </html>
