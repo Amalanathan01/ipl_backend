@@ -1,12 +1,45 @@
 const graphql = require('graphql');
 const Delivery = require('../models/deliveryModel');
 const Match = require('../models/matchModel');
+const Team = require('../models/teamModel');
+const Player = require('../models/playerModel');
 
 const { 
     GraphQLObjectType, GraphQLString, 
     GraphQLID, GraphQLInt,GraphQLSchema, 
     GraphQLList, GraphQLNonNull, GraphQLBoolean
 } = graphql; 
+
+const BatsmanId = new GraphQLObjectType({
+    name: 'BatsmanId',
+    fields: () => ({
+        batsman: { type: GraphQLString },
+        match_id: { type: GraphQLInt },
+        opponent: { type: GraphQLString }
+    })
+})
+
+const BatsmanFourId = new GraphQLObjectType({
+    name: 'BatsmanFourId',
+    fields: () => ({
+        batsman: { type: GraphQLString }
+    })
+})
+
+const TeamType = new GraphQLObjectType({
+    name: 'Team',
+    fields: () => ({
+        teamName: { type: GraphQLString }
+    })
+})
+
+const PlayerType = new GraphQLObjectType({
+    name: 'Player',
+    fields: () => ({
+        teamName: { type: GraphQLString },
+        playerName: { type: GraphQLString }
+    })
+})
 
 const DeliveryType = new GraphQLObjectType({
     name: 'Delivery',
@@ -72,27 +105,113 @@ const MatchType = new GraphQLObjectType({
     })
 })
 
+const BatsmanType = new GraphQLObjectType({
+    name: 'Batsman',
+    fields: () => ({
+        _id: { type: BatsmanId },
+        totalBatsmanScore: { type: GraphQLInt },
+        balls: { type: GraphQLInt }
+    })
+})
+
+const BatsmanFoursType = new GraphQLObjectType({
+    name: 'BatsmanFours',
+    fields: () => ({
+        _id: { type: BatsmanFourId },
+        noOfFoursOrSixes: { type: GraphQLInt }
+    })
+})
+
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
     fields: {
         deliveries: {
             type: new GraphQLList(DeliveryType),
             args: { matchid: { type: new GraphQLNonNull(GraphQLInt) } },
-            resolve(parent, args) {
+            resolve(parent, args, context) {
                 return Delivery.find({ match_id :args.matchid });
             }
         },
-        match:{
-            type: new GraphQLList(MatchType),
-            args: { matchid : { type: new GraphQLNonNull(GraphQLInt) } },
-            resolve(parent, args) {
-                return Match.find({ id :args.matchid });
+
+        batsmanScore: {
+            type: new GraphQLList(BatsmanType),
+            resolve(parent, args, context) {
+                return Delivery.aggregate(
+                    [
+                        {
+                            $group:
+                            {
+                                _id: {
+                                    batsman: "$batsman", match_id: "$match_id", opponent: "$bowling_team"},
+                                totalBatsmanScore: { $sum: "$batsman_runs" },
+                                balls: { $sum: 1 }
+                            }
+                        }
+                    ]
+                )
             }
         },
+        batsmanFoursOrSixes: {
+            type: new GraphQLList(BatsmanFoursType),
+            args: { batsman_runs: { type: new GraphQLNonNull(GraphQLInt) } },
+            resolve(parent, args, context) {
+                return Delivery.aggregate(
+                    [
+                        {
+                            "$group":
+                            {
+                                "_id": { "batsman": "$batsman"},
+                                "noOfFoursOrSixes": {
+                                    $sum: {
+                                        $cond: [{ $eq: ["$batsman_runs", args.batsman_runs] }, 1, 0]
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                )
+            }
+        },
+
+        match:{
+            type: new GraphQLList(MatchType),
+            args: {
+                matchid: { type: GraphQLInt },
+                team1: { type: GraphQLString },
+                team2: { type: GraphQLString }
+            },
+            resolve(parent, args, context) {
+                if (args.matchid) {
+                    return Match.find({ id: args.matchid });
+                } else if (args.team1 && args.team2) {
+                    return Match.find({
+                        $or: [
+                            { $and: [{ team1: args.team1 }, { team2: args.team2 }] },
+                            { $and: [{ team1: args.team2 }, { team2: args.team1 }] }
+                        ]
+                    });
+                }
+            }
+        },
+
         matches:{
             type: new GraphQLList(MatchType),
-            resolve(parent, args) {
+            resolve(parent, args, context) {
                 return Match.find({});
+            }
+        },
+
+        teams: {
+            type: new GraphQLList(TeamType),
+            resolve(parent, args, context) {
+                return Team.find({});
+            }
+        },
+
+        players: {
+            type: new GraphQLList(PlayerType),
+            resolve(parent, args, context) {
+                return Player.find({});
             }
         }
     }
@@ -123,7 +242,10 @@ const Mutation = new GraphQLObjectType({
                 umpire2: { type: GraphQLString },
                 umpire3: { type: GraphQLString }
             },
-            resolve(parent, args) {
+            resolve(parent, args, context) {
+                if (!context.isTokenAuthorized) {
+                    throw new Error("Unauthorized");
+                }
                 let match = new Match({
                     id: args.id === '' ? null : parseInt(args.id),
                     season: args.season,
@@ -172,7 +294,10 @@ const Mutation = new GraphQLObjectType({
                 dismissal_kind: { type: GraphQLString },
                 fielder: { type: GraphQLString }
             },
-            resolve(parent,args){
+            resolve(parent, args, context) {
+                if (!context.isTokenAuthorized) {
+                    throw new Error("Unauthorized");
+                }
                 let delivery = new Delivery({
                     match_id: args.match_id === '' ? null : parseInt(args.match_id),
                     inning: args.inning === '' ? null : parseInt(args.inning),
